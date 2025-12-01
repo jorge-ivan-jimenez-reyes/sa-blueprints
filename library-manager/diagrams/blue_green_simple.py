@@ -74,3 +74,4 @@ with Diagram(
 
 
 print("✅ Diagrama compacto generado: output/blue_green_simple.png")
+

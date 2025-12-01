@@ -171,3 +171,4 @@ print("   1. Blue (v1.0) recibe 100% del tráfico (PRODUCCIÓN)")
 print("   2. Green (v1.1) está listo pero sin tráfico (STAGING)")
 print("   3. Después de validar Green, el Load Balancer hace el SWITCH")
 print("   4. Si hay problemas, rollback instantáneo a Blue")
+
