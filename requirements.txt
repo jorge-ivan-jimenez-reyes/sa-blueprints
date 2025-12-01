@@ -1,0 +1,13 @@
+# Diagrams - Infrastructure as Code diagrams
+# https://diagrams.mingrammer.com/
+diagrams==0.25.1
+
+# Dependencies installed automatically:
+# - graphviz (Python bindings)
+# - jinja2
+
+# System requirement: graphviz must be installed
+# macOS: brew install graphviz
+# Ubuntu: sudo apt install graphviz
+# Windows: choco install graphviz
+

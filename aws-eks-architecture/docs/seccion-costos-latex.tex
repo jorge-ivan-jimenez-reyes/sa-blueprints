@@ -1,0 +1,152 @@
+% =========================
+% ESTIMACIÓN DE COSTOS - IA Interactive AWS EKS
+% =========================
+
+\section{Estimación de Costos}
+
+\subsection*{Componentes Considerados}
+
+\begin{itemize}[itemsep=2pt]
+    \item \textbf{Amazon EKS Control Plane}: \$0.10/hora = \$73/mes por cluster.
+    \item \textbf{Nodos EC2 (Worker Nodes)}: Instancias t3.small (\$0.02/hora $\approx$ \$15/mes) o t3.medium (\$0.04/hora $\approx$ \$30/mes).
+    \item \textbf{Amazon RDS PostgreSQL}: db.t3.micro (\$15/mes) a db.t3.medium (\$50/mes) según ambiente.
+    \item \textbf{Amazon CloudFront (CDN)}: \$0.085/GB transferido + \$0.01/10K requests HTTPS.
+    \item \textbf{Application Load Balancer (ALB)}: \$0.0225/hora = \$16/mes + LCU.
+    \item \textbf{Amazon S3}: \$0.023/GB/mes almacenamiento + transferencia.
+    \item \textbf{NAT Gateway}: \$0.045/hora = \$32/mes (necesario para subnets privadas).
+    \item \textbf{Amazon ECR}: \$0.10/GB/mes para imágenes de contenedores.
+    \item \textbf{Secrets Manager}: \$0.40/secreto/mes.
+    \item \textbf{CloudWatch}: Logs \$0.50/GB ingestión + métricas adicionales.
+    \item \textbf{Observabilidad interna}: Prometheus y Grafana (open source, sin costo de licencia).
+    \item \textbf{Herramientas externas}: Google Analytics 4 (gratuito), HubSpot (según plan).
+\end{itemize}
+
+\subsection*{Estimado Mensual por Ambiente}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Servicio} & \textbf{Dev} & \textbf{Stage} & \textbf{Prod} \\
+\hline
+EKS Control Plane & \$73 & \$73 & \$73 \\
+EC2 Nodes (t3.small/medium) & \$18 (Spot) & \$18 (Spot) & \$180 (On-Demand) \\
+RDS PostgreSQL & \$15 & \$25 & \$100 (Multi-AZ) \\
+CloudFront CDN & -- & -- & \$30 \\
+ALB (público + interno) & \$20 & \$20 & \$45 \\
+NAT Gateway & \$35 & \$35 & \$70 (HA) \\
+S3 + ECR & \$2 & \$2 & \$6 \\
+CloudWatch & \$10 & \$15 & \$30 \\
+Secrets Manager + DNS & \$5 & \$5 & \$10 \\
+\hline
+\textbf{Total Mensual} & \textbf{\$178} & \textbf{\$193} & \textbf{\$544} \\
+\hline
+\end{tabular}
+\caption{Estimación de costos mensuales por ambiente (USD, región us-east-1)}
+\end{table}
+
+\subsection*{Resumen de Costos}
+
+\begin{itemize}[itemsep=2pt]
+    \item \textbf{Costo Total (3 ambientes)}: \$750 - \$1,400 USD/mes
+    \item \textbf{Costo Anual Estimado}: \$9,000 - \$16,800 USD/año
+    \item \textbf{Configuración Optimizada} (1 cluster compartido dev/stage): \$550 USD/mes
+\end{itemize}
+
+\subsection*{Estrategias de Optimización}
+
+\begin{enumerate}[itemsep=2pt]
+    \item \textbf{Spot Instances}: Usar nodos Spot en dev/stage (ahorro 60-70\%).
+    \item \textbf{Reserved Instances}: Compromisos de 1-3 años para producción (ahorro 30-50\%).
+    \item \textbf{Cluster compartido}: Un solo cluster EKS con namespaces para dev/stage.
+    \item \textbf{NAT Instance}: Reemplazar NAT Gateway por NAT Instance en dev (\$5/mes vs \$35/mes).
+    \item \textbf{Right-sizing}: Monitorear uso real y ajustar tamaño de instancias.
+\end{enumerate}
+
+\textit{Fuentes: AWS Pricing Calculator (calculator.aws), AWS Documentation, precios región us-east-1, noviembre 2024.}
+
+% =========================
+% RIESGOS Y MITIGACIONES
+% =========================
+
+\section{Riesgos y Mitigaciones}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{|p{4cm}|c|c|p{6cm}|}
+\hline
+\textbf{Riesgo} & \textbf{Prob.} & \textbf{Impacto} & \textbf{Mitigación} \\
+\hline
+Complejidad de Kubernetes & Media & Medio & GitOps con Argo CD, patrones estándar (Deployments, Services, Ingress), documentación clara y runbooks. \\
+\hline
+Dependencia de servicios externos & Baja & Medio & Integraciones desacopladas vía APIs, circuit breakers, monitoreo de SLAs de HubSpot y GA4. \\
+\hline
+Picos de tráfico inesperados & Media & Alto & CloudFront como CDN, HPA en pods, Cluster Autoscaler en EKS para escalar horizontalmente. \\
+\hline
+Riesgos de seguridad & Baja & Alto & Defensa por capas: WAF (opcional), IAM con mínimo privilegio, VPN (Tailscale), HTTPS, Secrets Manager, Network Policies. \\
+\hline
+Errores de configuración IaC & Media & Alto & Terraform con PR reviews, \texttt{terraform plan} obligatorio, separación de estados por ambiente, pipelines de validación. \\
+\hline
+Downtime de AWS & Muy Baja & Alto & Multi-AZ para RDS en prod, pods distribuidos en múltiples nodos, CloudFront como cache de fallback. \\
+\hline
+Costos no controlados & Media & Medio & Alertas de billing en CloudWatch, etiquetado de recursos, revisión mensual de Cost Explorer, Spot para dev/stage. \\
+\hline
+\end{tabular}
+\caption{Matriz de riesgos y mitigaciones}
+\end{table}
+
+\subsection*{Detalle de Mitigaciones Principales}
+
+\begin{itemize}[itemsep=2pt]
+    \item \textbf{Complejidad del ecosistema Kubernetes}: 
+    \begin{itemize}
+        \item Uso de GitOps con Argo CD para despliegues declarativos y auditables.
+        \item Patrones estándar de Kubernetes (Deployments, Services, Ingress, ConfigMaps).
+        \item Documentación técnica y runbooks para operaciones comunes.
+        \item Capacitación del equipo en conceptos básicos de K8s.
+    \end{itemize}
+    
+    \item \textbf{Picos de tráfico}: 
+    \begin{itemize}
+        \item Amazon CloudFront absorbe carga con cache en edge locations globales.
+        \item Horizontal Pod Autoscaler (HPA) escala pods basado en CPU/memoria.
+        \item Cluster Autoscaler agrega nodos EC2 automáticamente.
+        \item Configuración de requests/limits en pods para uso eficiente de recursos.
+    \end{itemize}
+    
+    \item \textbf{Riesgos de seguridad}: 
+    \begin{itemize}
+        \item Acceso al back office, Grafana y Argo CD únicamente vía VPN (Tailscale).
+        \item IAM con políticas de mínimo privilegio para cada servicio.
+        \item Secrets gestionados en AWS Secrets Manager (no en código).
+        \item HTTPS obligatorio en todos los endpoints (ALB + CloudFront).
+        \item Security Groups restrictivos y Network Policies en Kubernetes.
+    \end{itemize}
+    
+    \item \textbf{Errores de configuración en infraestructura}: 
+    \begin{itemize}
+        \item Infraestructura como Código (IaC) con Terraform.
+        \item Pull requests obligatorios con revisión de \texttt{terraform plan}.
+        \item Estados de Terraform separados por ambiente (dev/stage/prod).
+        \item Pipelines de CI que validan sintaxis y políticas antes de aplicar.
+    \end{itemize}
+\end{itemize}
+
+% =========================
+% NOTAS Y FUENTES
+% =========================
+
+\subsection*{Fuentes y Referencias}
+
+\begin{itemize}[itemsep=2pt]
+    \item AWS Pricing Calculator: \url{https://calculator.aws/}
+    \item Amazon EKS Pricing: \url{https://aws.amazon.com/eks/pricing/}
+    \item Amazon RDS Pricing: \url{https://aws.amazon.com/rds/pricing/}
+    \item Amazon EC2 Pricing: \url{https://aws.amazon.com/ec2/pricing/}
+    \item Amazon CloudFront Pricing: \url{https://aws.amazon.com/cloudfront/pricing/}
+    \item Precios consultados: Región us-east-1, Noviembre 2024.
+\end{itemize}
+
+\textit{Nota: Los costos son estimaciones basadas en configuraciones típicas. El costo final dependerá del tráfico real, patrones de uso y optimizaciones aplicadas. Se recomienda monitorear con AWS Cost Explorer y ajustar según métricas reales.}
+
