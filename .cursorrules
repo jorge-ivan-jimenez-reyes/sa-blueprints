@@ -1,0 +1,425 @@
+# Cursor Rules: Diagramas de Arquitectura con Python Diagrams
+
+## 📋 Descripción General
+
+Este documento define las reglas y mejores prácticas para crear diagramas de arquitectura de software usando la librería **Diagrams** de Python. Los diagramas de arquitectura son representaciones visuales que mapean la implementación física de componentes de un sistema de software.
+
+---
+
+## 🎯 Propósito de los Diagramas de Arquitectura
+
+Los diagramas de arquitectura deben:
+
+1. **Mostrar interacciones del sistema**: Usar figuras y líneas sencillas para indicar flujos de proceso
+2. **Incluir anotaciones útiles**: Agregar contexto e información importante
+3. **Ser visibles y accesibles**: Generar formatos portables (PNG, SVG, PDF)
+4. **Facilitar la comunicación**: Permitir que todo el equipo entienda la arquitectura
+
+---
+
+## 📚 Tipos de Diagramas Soportados
+
+### 1. Diagrama de Arquitectura de Aplicación
+- **Uso**: Estructura básica del software, componentes y relaciones
+- **Cuándo**: Evaluar impacto de actualizaciones o fusiones de aplicaciones
+- **Ejemplo**: Arquitectura de microservicios, monolitos, aplicaciones web
+
+### 2. Diagrama de Arquitectura de Integración
+- **Uso**: Cómo interactúan los componentes entre sí
+- **Cuándo**: Planificar integraciones con sistemas externos
+- **Ejemplo**: APIs, webhooks, message queues
+
+### 3. Diagrama de Arquitectura de Implementación (Deployment)
+- **Uso**: Límites de red, procesadores, nodos, hardware
+- **Cuándo**: Planificar distribución física del sistema
+- **Ejemplo**: Blue-Green deployment, Kubernetes clusters
+
+### 4. Diagrama de Arquitectura de DevOps
+- **Uso**: Flujos operativos de implementación
+- **Cuándo**: Mejorar procesos de CI/CD
+- **Ejemplo**: Pipelines, GitHub Actions, ArgoCD
+
+### 5. Diagrama de Arquitectura de Datos
+- **Uso**: Cómo fluyen, procesan y almacenan los datos
+- **Cuándo**: Optimizar recursos de almacenamiento
+- **Ejemplo**: Data lakes, ETL pipelines, bases de datos
+
+---
+
+## 🛠️ Librería Diagrams - Guía de Uso
+
+### Instalación
+
+```bash
+# Instalar librería
+pip install diagrams
+
+# Requisito del sistema: Graphviz
+# macOS
+brew install graphviz
+
+# Ubuntu/Debian
+sudo apt install graphviz
+
+# Windows
+choco install graphviz
+```
+
+### Estructura Básica
+
+```python
+from diagrams import Diagram, Cluster, Edge
+
+# Contexto del diagrama
+with Diagram("Nombre del Diagrama", show=False):
+    # Nodos y conexiones aquí
+    pass
+```
+
+### Parámetros del Diagrama
+
+```python
+with Diagram(
+    name="Mi Diagrama",           # Título (genera nombre de archivo)
+    filename="output/mi_diagrama", # Ruta de salida (sin extensión)
+    show=False,                    # No abrir automáticamente
+    direction="TB",                # TB, BT, LR, RL
+    outformat="png",               # png, jpg, svg, pdf, dot
+    graph_attr=graph_attr,         # Atributos de Graphviz
+):
+```
+
+### Direcciones del Diagrama
+
+| Dirección | Significado | Uso Recomendado |
+|-----------|-------------|-----------------|
+| `TB` | Top to Bottom | Jerarquías, flujos verticales |
+| `BT` | Bottom to Top | Dependencias hacia arriba |
+| `LR` | Left to Right | Flujos de proceso, pipelines |
+| `RL` | Right to Left | Flujos inversos |
+
+### Atributos de Graphviz Recomendados
+
+```python
+graph_attr = {
+    "fontsize": "14",        # Tamaño de fuente del título
+    "bgcolor": "white",      # Color de fondo
+    "pad": "0.3",            # Padding del diagrama
+    "splines": "spline",     # Tipo de líneas (spline, ortho, polyline)
+    "nodesep": "0.5",        # Separación horizontal entre nodos
+    "ranksep": "0.5",        # Separación vertical entre niveles
+    "dpi": "150",            # Resolución (96-300)
+    "size": "10,8!",         # Tamaño máximo en pulgadas
+}
+```
+
+---
+
+## 🎨 Proveedores y Nodos Disponibles
+
+### Cloud Providers
+
+```python
+# AWS
+from diagrams.aws.compute import EC2, ECS, EKS, Lambda
+from diagrams.aws.database import RDS, DynamoDB, ElastiCache
+from diagrams.aws.network import ELB, CloudFront, Route53
+from diagrams.aws.storage import S3
+
+# Azure
+from diagrams.azure.compute import VM, AKS, FunctionApps
+from diagrams.azure.database import SQLDatabases, CosmosDb
+
+# GCP
+from diagrams.gcp.compute import GCE, GKE, Functions
+from diagrams.gcp.database import SQL, Firestore
+```
+
+### Kubernetes
+
+```python
+from diagrams.k8s.compute import Pod, Deployment, StatefulSet
+from diagrams.k8s.network import Service, Ingress
+from diagrams.k8s.storage import PV, PVC, StorageClass
+```
+
+### On-Premise / Generic
+
+```python
+from diagrams.onprem.client import Users, Client
+from diagrams.onprem.compute import Server
+from diagrams.onprem.database import PostgreSQL, MySQL, MongoDB
+from diagrams.onprem.inmemory import Redis
+from diagrams.onprem.network import Nginx, Haproxy
+from diagrams.onprem.vcs import Github, Gitlab
+from diagrams.onprem.ci import GithubActions, Jenkins
+from diagrams.onprem.monitoring import Grafana, Prometheus
+from diagrams.generic.compute import Rack
+from diagrams.generic.storage import Storage
+```
+
+### SaaS y Otros
+
+```python
+from diagrams.saas.cdn import Cloudflare
+from diagrams.saas.chat import Slack
+from diagrams.programming.framework import React, Vue
+from diagrams.programming.language import Python, JavaScript
+```
+
+---
+
+## 🔗 Conexiones y Edges
+
+### Operadores de Conexión
+
+```python
+# Conexión simple (izquierda a derecha)
+node1 >> node2
+
+# Conexión inversa (derecha a izquierda)
+node1 << node2
+
+# Conexión bidireccional
+node1 - node2
+
+# Múltiples conexiones
+node1 >> [node2, node3, node4]
+
+# Cadena de conexiones
+node1 >> node2 >> node3 >> node4
+```
+
+### Edges Personalizados
+
+```python
+from diagrams import Edge
+
+# Edge con etiqueta
+node1 >> Edge(label="HTTPS") >> node2
+
+# Edge con color
+node1 >> Edge(color="blue") >> node2
+
+# Edge con estilo
+node1 >> Edge(style="dashed") >> node2  # dashed, dotted, bold
+
+# Edge combinado
+node1 >> Edge(
+    color="green",
+    style="bold",
+    label="100% traffic"
+) >> node2
+```
+
+### Colores Recomendados por Tipo
+
+| Tipo de Conexión | Color | Ejemplo |
+|------------------|-------|---------|
+| Tráfico de usuario | `blue` | HTTPS, requests |
+| Deploy/CI-CD | `green` | Pipelines, releases |
+| Base de datos | `brown` | Queries, connections |
+| Cache | `cyan` | Redis, Memcached |
+| Monitoring | `purple` | Metrics, logs |
+| Alertas | `red` | Errors, rollbacks |
+| Opcional/Staging | `gray` + `dashed` | Standby, backup |
+
+---
+
+## 📦 Clusters (Agrupaciones)
+
+### Uso Básico
+
+```python
+from diagrams import Cluster
+
+with Cluster("Nombre del Grupo"):
+    node1 = Server("Server 1")
+    node2 = Server("Server 2")
+```
+
+### Clusters Anidados
+
+```python
+with Cluster("Production Environment"):
+    with Cluster("Web Tier"):
+        web1 = Server("Web 1")
+        web2 = Server("Web 2")
+    
+    with Cluster("Database Tier"):
+        db = PostgreSQL("Primary")
+```
+
+### Clusters con Estilo
+
+```python
+with Cluster(
+    "BLUE Environment",
+    graph_attr={
+        "bgcolor": "#E3F2FD",      # Fondo azul claro
+        "fontcolor": "#1565C0",    # Texto azul oscuro
+        "style": "rounded",
+    }
+):
+    # Nodos aquí
+```
+
+### Colores para Clusters por Entorno
+
+| Entorno | bgcolor | fontcolor |
+|---------|---------|-----------|
+| Blue/Production | `#E3F2FD` | `#1565C0` |
+| Green/Staging | `#E8F5E9` | `#2E7D32` |
+| Development | `#FFF3E0` | `#E65100` |
+| Security/Critical | `#FCE4EC` | `#C2185B` |
+| Shared/Neutral | `#F5F5F5` | `#424242` |
+
+---
+
+## ✅ Mejores Prácticas
+
+### 1. Estructura del Archivo
+
+```python
+"""
+Proyecto - Nombre del Diagrama
+==============================
+Descripción breve del diagrama.
+
+Ejecutar: python nombre_diagrama.py
+Output: output/nombre_diagrama.png
+"""
+
+from diagrams import Diagram, Cluster, Edge
+# ... imports ...
+
+# Configuración
+graph_attr = {
+    # ... atributos ...
+}
+
+with Diagram(...):
+    # ... diagrama ...
+
+print("✅ Diagrama generado: output/nombre_diagrama.png")
+```
+
+### 2. Organización de Carpetas
+
+```
+proyecto/
+├── diagrams/
+│   ├── 01_arquitectura_general.py
+│   ├── 02_deployment.py
+│   ├── 03_data_flow.py
+│   └── output/
+│       ├── 01_arquitectura_general.png
+│       ├── 02_deployment.png
+│       └── 03_data_flow.png
+├── docs/
+└── README.md
+```
+
+### 3. Convenciones de Nombres
+
+- **Archivos**: `snake_case.py` (ej: `blue_green_deployment.py`)
+- **Nodos**: Descriptivos y concisos (ej: `"App Server 1"`, `"PostgreSQL Primary"`)
+- **Clusters**: Capitalizados (ej: `"Production Environment"`)
+- **Salida**: Mismo nombre que el archivo en `output/`
+
+### 4. Reglas de Diseño
+
+1. **Simplicidad**: No más de 15-20 nodos por diagrama
+2. **Agrupación lógica**: Usar clusters para agrupar componentes relacionados
+3. **Dirección clara**: Elegir dirección que facilite la lectura del flujo
+4. **Colores consistentes**: Mantener esquema de colores uniforme
+5. **Etiquetas informativas**: Incluir labels en edges importantes
+6. **DPI apropiado**: 96-150 para documentos, 200-300 para presentaciones
+
+### 5. Para Documentos LaTeX
+
+```python
+# Configuración recomendada para LaTeX
+graph_attr = {
+    "fontsize": "11",
+    "bgcolor": "white",
+    "pad": "0.2",
+    "dpi": "120",
+    "size": "8,6!",  # Limitar tamaño
+}
+```
+
+En LaTeX:
+```latex
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{diagrama.png}
+\caption{Descripción del diagrama}
+\end{figure}
+```
+
+---
+
+## 🚀 Ejemplos de Patrones Comunes
+
+### Blue-Green Deployment
+
+```python
+with Cluster("BLUE (Live)", graph_attr={"bgcolor": "#E3F2FD"}):
+    blue = Server("App Blue")
+
+with Cluster("GREEN (Standby)", graph_attr={"bgcolor": "#E8F5E9"}):
+    green = Server("App Green")
+
+lb = Haproxy("Load Balancer")
+lb >> Edge(color="blue", style="bold", label="100%") >> blue
+lb >> Edge(color="green", style="dashed", label="0%") >> green
+```
+
+### Pipeline CI/CD
+
+```python
+repo = Github("Repository")
+ci = GithubActions("CI Pipeline")
+registry = ECR("Container Registry")
+deploy = EKS("Kubernetes")
+
+repo >> Edge(label="push") >> ci >> Edge(label="build") >> registry >> Edge(label="deploy") >> deploy
+```
+
+### Microservicios
+
+```python
+with Cluster("API Gateway"):
+    gateway = Nginx("Gateway")
+
+with Cluster("Services"):
+    svc1 = Server("User Service")
+    svc2 = Server("Order Service")
+    svc3 = Server("Payment Service")
+
+gateway >> [svc1, svc2, svc3]
+```
+
+---
+
+## 📝 Checklist de Revisión
+
+Antes de finalizar un diagrama, verificar:
+
+- [ ] El título es descriptivo y claro
+- [ ] Los nodos tienen nombres significativos
+- [ ] Los clusters agrupan componentes lógicamente
+- [ ] Las conexiones tienen etiquetas donde es necesario
+- [ ] Los colores son consistentes con la convención
+- [ ] El diagrama no está sobrecargado (máx 15-20 nodos)
+- [ ] El archivo de salida se genera correctamente
+- [ ] El diagrama es legible en el tamaño objetivo (documento, presentación)
+
+---
+
+## 🔗 Referencias
+
+- [Diagrams Documentation](https://diagrams.mingrammer.com/)
+- [Graphviz Attributes](https://graphviz.org/doc/info/attrs.html)
+- [Diagrams GitHub](https://github.com/mingrammer/diagrams)

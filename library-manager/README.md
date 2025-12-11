@@ -93,3 +93,4 @@ La estrategia Blue-Green mejora la seguridad del ciclo de vida:
 - **Downtime**: 0 segundos
 - **Frecuencia sugerida**: Cada 3-4 semanas (o según necesidad)
 
+
