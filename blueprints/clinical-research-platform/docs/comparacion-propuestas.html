@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Research Platform - Propuesta de Arquitectura</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #fff;
+        }
+        h1 {
+            font-size: 2.2em;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #0066cc;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 1.5em;
+            color: #0066cc;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+        h3 {
+            font-size: 1.2em;
+            color: #444;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+        tr:hover {
+            background: #f0f7ff;
+        }
+        .section {
+            margin-bottom: 50px;
+            page-break-inside: avoid;
+        }
+        .divider {
+            border: 0;
+            height: 1px;
+            background: #eee;
+            margin: 40px 0;
+        }
+        strong {
+            color: #0066cc;
+        }
+        .ventajas {
+            background: #e8f5e9;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .desventajas {
+            background: #fff3e0;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .ventajas h3, .desventajas h3 {
+            margin-top: 0;
+        }
+        .comparativa {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        @media print {
+            body {
+                padding: 20px;
+            }
+            .section {
+                page-break-inside: avoid;
+            }
+            img {
+                max-height: 400px;
+                object-fit: contain;
+            }
+        }
+        @page {
+            margin: 1cm;
+        }
+    </style>
+</head>
+<body>
+    <h1>Clinical Research Platform</h1>
+    <p class="subtitle">Propuesta de Arquitectura</p>
+    <p style="color: #666; font-size: 0.95em; margin-top: -20px;">Elaborado por: Arq. Sols. Jorge Jimenez</p>
+
+    <div class="section">
+        <h2>Arquitectura General</h2>
+        <p>Vista completa de la plataforma con todos los componentes.</p>
+        <img src="images/01-complete-architecture.png" alt="Arquitectura Completa">
+        <p><strong>Flujo:</strong></p>
+        <ol>
+            <li>Participantes acceden via Mobile App (React Native)</li>
+            <li>Investigadores acceden via WebApp (React + Amplify)</li>
+            <li>Route 53 resuelve DNS</li>
+            <li>CloudFront distribuye contenido estatico</li>
+            <li>ALB balancea trafico al backend</li>
+            <li>Backend procesa requests</li>
+            <li>Datos en RDS PostgreSQL y S3</li>
+            <li>Cognito maneja autenticacion</li>
+            <li>SNS/SES envian notificaciones</li>
+        </ol>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+        <h2>Mobile App (Participantes)</h2>
+        <p>Aplicacion movil React Native para iOS y Android.</p>
+        <img src="images/02-mobile-app.png" alt="Mobile App">
+        <p><strong>Funcionalidades:</strong></p>
+        <ul>
+            <li>Login seguro con opcion biometrica</li>
+            <li>Dashboard de estado del estudio</li>
+            <li>Calendario de visitas con confirmacion</li>
+            <li>Consentimiento informado digital con firma</li>
+            <li>Encuestas y formularios de seguimiento</li>
+            <li>Chat seguro con investigadores</li>
+            <li>Notificaciones push de recordatorios</li>
+        </ul>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+        <h2>WebApp (Investigadores)</h2>
+        <p>Panel de administracion web para el equipo de investigacion.</p>
+        <img src="images/03-webapp.png" alt="WebApp">
+        <p><strong>Funcionalidades:</strong></p>
+        <ul>
+            <li>Dashboard con KPIs (estudios activos, pacientes, visitas)</li>
+            <li>Gestion de protocolos y CRFs</li>
+            <li>Enrolamiento y seguimiento de participantes</li>
+            <li>Cronograma de visitas con colores</li>
+            <li>Recoleccion de datos con validaciones</li>
+            <li>Registro de eventos adversos</li>
+            <li>Reportes exportables (CSV/Excel)</li>
+            <li>Auditoria completa de acciones</li>
+        </ul>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+        <h2>Backend Infrastructure</h2>
+        <p>Infraestructura en AWS cumpliendo lineamientos HIPAA.</p>
+        <img src="images/04-backend-infrastructure.png" alt="Backend Infrastructure">
+        <p><strong>Componentes:</strong></p>
+        <ul>
+            <li>VPC con subnets publicas y privadas</li>
+            <li>Contenedores para el backend</li>
+            <li>RDS PostgreSQL para datos</li>
+            <li>ElastiCache Redis para cache</li>
+            <li>S3 encriptado para documentos</li>
+            <li>CloudWatch para monitoreo</li>
+        </ul>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+        <h2>Capas de Seguridad</h2>
+        <p>Stack de seguridad en capas para cumplimiento HIPAA.</p>
+        <img src="images/05-security-layers.png" alt="Security Layers">
+        <table>
+            <tr>
+                <th>Capa</th>
+                <th>Componentes</th>
+                <th>Funcion</th>
+            </tr>
+            <tr>
+                <td>1. Edge</td>
+                <td>Shield, WAF, CloudFront</td>
+                <td>Proteccion DDoS y filtrado</td>
+            </tr>
+            <tr>
+                <td>2. Auth</td>
+                <td>Cognito, IAM, RBAC</td>
+                <td>Autenticacion y autorizacion</td>
+            </tr>
+            <tr>
+                <td>3. Network</td>
+                <td>VPC, Security Groups</td>
+                <td>Aislamiento de red</td>
+            </tr>
+            <tr>
+                <td>4. Application</td>
+                <td>Validation, Sessions</td>
+                <td>Seguridad en codigo</td>
+            </tr>
+            <tr>
+                <td>5. Data</td>
+                <td>KMS, Encryption</td>
+                <td>Proteccion de datos</td>
+            </tr>
+            <tr>
+                <td>6. Audit</td>
+                <td>CloudTrail, Logs</td>
+                <td>Trazabilidad completa</td>
+            </tr>
+        </table>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+        <h2>Propuestas de Implementacion</h2>
+        <p>Ambas propuestas incluyen seguridad completa. La diferencia es quien administra los servidores.</p>
+        <table>
+            <tr>
+                <th>Aspecto</th>
+                <th>Propuesta A (Fargate)</th>
+                <th>Propuesta B (EC2)</th>
+            </tr>
+            <tr>
+                <td>Costo mensual</td>
+                <td>$350-500 USD</td>
+                <td>$300-450 USD</td>
+            </tr>
+            <tr>
+                <td>Compute</td>
+                <td>Fargate (serverless)</td>
+                <td>EC2 (autoadministrado)</td>
+            </tr>
+            <tr>
+                <td>Administracion</td>
+                <td>AWS</td>
+                <td>Ustedes</td>
+            </tr>
+            <tr>
+                <td>Base de datos</td>
+                <td>RDS Single-AZ</td>
+                <td>RDS Single-AZ</td>
+            </tr>
+            <tr>
+                <td>Cache</td>
+                <td>Redis</td>
+                <td>Redis</td>
+            </tr>
+            <tr>
+                <td>WAF</td>
+                <td>Si</td>
+                <td>Si</td>
+            </tr>
+            <tr>
+                <td>Audit Trail</td>
+                <td>CloudTrail</td>
+                <td>CloudTrail</td>
+            </tr>
+            <tr>
+                <td>Secrets Manager</td>
+                <td>Si</td>
+                <td>Si</td>
+            </tr>
+        </table>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+        <h2>Propuesta A - Fargate (Serverless)</h2>
+        <p>AWS administra los servidores. Solo suben contenedores y escala automaticamente.</p>
+        <img src="images/06-propuesta-simple.png" alt="Propuesta A">
+        
+        <h3>Componentes</h3>
+        <table>
+            <tr><th>Servicio</th><th>Configuracion</th></tr>
+            <tr><td>Fargate</td><td>2 tareas (0.5 vCPU, 1GB)</td></tr>
+            <tr><td>RDS PostgreSQL</td><td>db.t3.small Single-AZ</td></tr>
+            <tr><td>ElastiCache</td><td>cache.t3.micro Redis</td></tr>
+            <tr><td>WAF</td><td>Reglas basicas</td></tr>
+            <tr><td>Amplify</td><td>WebApp React</td></tr>
+            <tr><td>Cognito</td><td>User Pool + 2FA</td></tr>
+            <tr><td>Secrets Manager</td><td>Credenciales</td></tr>
+            <tr><td>CloudTrail</td><td>Auditoria</td></tr>
+        </table>
+
+        <h3>Costo Estimado</h3>
+        <table>
+            <tr><th>Servicio</th><th>USD/mes</th></tr>
+            <tr><td>Fargate</td><td>$50-80</td></tr>
+            <tr><td>RDS db.t3.small</td><td>$25-40</td></tr>
+            <tr><td>ElastiCache</td><td>$15-25</td></tr>
+            <tr><td>ALB</td><td>$20-30</td></tr>
+            <tr><td>WAF</td><td>$10-20</td></tr>
+            <tr><td>Amplify</td><td>$0-10</td></tr>
+            <tr><td>S3 + CloudFront</td><td>$15-25</td></tr>
+            <tr><td>Route 53</td><td>$5</td></tr>
+            <tr><td>Cognito</td><td>$0-50</td></tr>
+            <tr><td>Secrets Manager</td><td>$5</td></tr>
+            <tr><td>SNS/SES</td><td>$10-20</td></tr>
+            <tr><td>CloudWatch + CloudTrail</td><td>$20-35</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>$350-500</strong></td></tr>
+        </table>
+
+        <div class="ventajas">
+            <h3>Ventajas</h3>
+            <ul>
+                <li>Sin administracion de servidores</li>
+                <li>AWS parcha el OS automaticamente</li>
+                <li>Escala automaticamente segun demanda</li>
+                <li>Pay-per-use</li>
+                <li>Seguridad completa (WAF, CloudTrail, Secrets)</li>
+            </ul>
+        </div>
+
+        <div class="desventajas">
+            <h3>Desventajas</h3>
+            <ul>
+                <li>Menos control sobre infraestructura</li>
+                <li>No hay SSH a contenedores</li>
+                <li>Costo ligeramente mayor</li>
+            </ul>
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+        <h2>Propuesta B - EC2 (Autoadministrado)</h2>
+        <p>Ustedes administran los servidores. Control total con SSH.</p>
+        <img src="images/07-propuesta-estandar.png" alt="Propuesta B">
+        
+        <h3>Componentes</h3>
+        <table>
+            <tr><th>Servicio</th><th>Configuracion</th></tr>
+            <tr><td>EC2</td><td>2x t3.small (API + Worker)</td></tr>
+            <tr><td>RDS PostgreSQL</td><td>db.t3.small Single-AZ</td></tr>
+            <tr><td>ElastiCache</td><td>cache.t3.micro Redis</td></tr>
+            <tr><td>WAF</td><td>Reglas basicas</td></tr>
+            <tr><td>Amplify</td><td>WebApp React</td></tr>
+            <tr><td>Cognito</td><td>User Pool + 2FA</td></tr>
+            <tr><td>Secrets Manager</td><td>Credenciales</td></tr>
+            <tr><td>CloudTrail</td><td>Auditoria</td></tr>
+        </table>
+
+        <h3>Costo Estimado</h3>
+        <table>
+            <tr><th>Servicio</th><th>USD/mes</th></tr>
+            <tr><td>EC2 (2x t3.small)</td><td>$30-40</td></tr>
+            <tr><td>RDS db.t3.small</td><td>$25-40</td></tr>
+            <tr><td>ElastiCache</td><td>$15-25</td></tr>
+            <tr><td>ALB</td><td>$20-30</td></tr>
+            <tr><td>WAF</td><td>$10-20</td></tr>
+            <tr><td>Amplify</td><td>$0-10</td></tr>
+            <tr><td>S3 + CloudFront</td><td>$15-25</td></tr>
+            <tr><td>Route 53</td><td>$5</td></tr>
+            <tr><td>Cognito</td><td>$0-50</td></tr>
+            <tr><td>Secrets Manager</td><td>$5</td></tr>
+            <tr><td>SNS/SES</td><td>$10-20</td></tr>
+            <tr><td>CloudWatch + CloudTrail</td><td>$20-35</td></tr>
+            <tr><td><strong>Total</strong></td><td><strong>$300-450</strong></td></tr>
+        </table>
+
+        <div class="ventajas">
+            <h3>Ventajas</h3>
+            <ul>
+                <li>Control total (SSH, logs, configuracion)</li>
+                <li>Costo ligeramente menor</li>
+                <li>Pueden optimizar instancias</li>
+                <li>Seguridad completa (WAF, CloudTrail, Secrets)</li>
+            </ul>
+        </div>
+
+        <div class="desventajas">
+            <h3>Desventajas</h3>
+            <ul>
+                <li>Ustedes parchean el OS</li>
+                <li>Ustedes escalan manualmente</li>
+                <li>Pagan 24/7 aunque no haya trafico</li>
+            </ul>
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+        <h2>Comparativa Final</h2>
+        <div class="comparativa">
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Propuesta A (Fargate)</th>
+                    <th>Propuesta B (EC2)</th>
+                </tr>
+                <tr>
+                    <td>Quien administra</td>
+                    <td>AWS</td>
+                    <td>Ustedes</td>
+                </tr>
+                <tr>
+                    <td>Parches de OS</td>
+                    <td>Automatico</td>
+                    <td>Manual</td>
+                </tr>
+                <tr>
+                    <td>SSH a servidor</td>
+                    <td>No</td>
+                    <td>Si</td>
+                </tr>
+                <tr>
+                    <td>Escalamiento</td>
+                    <td>Automatico</td>
+                    <td>Manual</td>
+                </tr>
+                <tr>
+                    <td>Costo minimo</td>
+                    <td>$350/mes</td>
+                    <td>$300/mes</td>
+                </tr>
+                <tr>
+                    <td>Costo tipico</td>
+                    <td>$425/mes</td>
+                    <td>$375/mes</td>
+                </tr>
+                <tr>
+                    <td><strong>Anual estimado</strong></td>
+                    <td><strong>$5,100</strong></td>
+                    <td><strong>$4,500</strong></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+        <h2>Recomendacion</h2>
+        
+        <div class="ventajas">
+            <h3>Propuesta A (Fargate) si:</h3>
+            <ul>
+                <li>Equipo pequeno sin DevOps dedicado</li>
+                <li>Prefieren que AWS administre infraestructura</li>
+                <li>Quieren escalamiento automatico</li>
+                <li>No necesitan SSH a servidores</li>
+            </ul>
+        </div>
+
+        <div class="desventajas">
+            <h3>Propuesta B (EC2) si:</h3>
+            <ul>
+                <li>Quieren control total sobre servidores</li>
+                <li>Tienen experiencia administrando infraestructura</li>
+                <li>Prefieren menor costo mensual</li>
+                <li>Necesitan SSH para debugging</li>
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>
