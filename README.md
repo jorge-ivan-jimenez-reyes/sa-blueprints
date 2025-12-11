@@ -19,6 +19,7 @@ Coleccion de arquitecturas de software y diagramas tecnicos para arquitectos de 
 
 | Blueprint | Descripcion | Stack |
 |-----------|-------------|-------|
+| [Clinical Research Platform](blueprints/clinical-research-platform/) | Plataforma de estudios clinicos HIPAA compliant | React Native, AWS, PostgreSQL |
 | [IA Interactive Website](blueprints/ia-interactive-website/) | Sitio web corporativo para agencia digital | Next.js, Strapi, Vercel |
 | [AWS EKS Architecture](blueprints/aws-eks-architecture/) | Arquitectura empresarial en AWS con Kubernetes | AWS, EKS, Terraform, ArgoCD |
 | [Library Manager](blueprints/library-manager/) | Sistema con Blue-Green Deployment | SDLC, CI/CD |
