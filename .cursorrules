@@ -1,12 +1,12 @@
 # Cursor Rules: Diagramas de Arquitectura con Python Diagrams
 
-## 📋 Descripción General
+## Descripción General
 
 Este documento define las reglas y mejores prácticas para crear diagramas de arquitectura de software usando la librería **Diagrams** de Python. Los diagramas de arquitectura son representaciones visuales que mapean la implementación física de componentes de un sistema de software.
 
 ---
 
-## 🎯 Propósito de los Diagramas de Arquitectura
+## Propósito de los Diagramas de Arquitectura
 
 Los diagramas de arquitectura deben:
 
@@ -17,7 +17,7 @@ Los diagramas de arquitectura deben:
 
 ---
 
-## 📚 Tipos de Diagramas Soportados
+## Tipos de Diagramas Soportados
 
 ### 1. Diagrama de Arquitectura de Aplicación
 - **Uso**: Estructura básica del software, componentes y relaciones
@@ -46,7 +46,7 @@ Los diagramas de arquitectura deben:
 
 ---
 
-## 🛠️ Librería Diagrams - Guía de Uso
+## Librería Diagrams - Guía de Uso
 
 ### Instalación
 
@@ -115,7 +115,7 @@ graph_attr = {
 
 ---
 
-## 🎨 Proveedores y Nodos Disponibles
+## Proveedores y Nodos Disponibles
 
 ### Cloud Providers
 
@@ -169,7 +169,7 @@ from diagrams.programming.language import Python, JavaScript
 
 ---
 
-## 🔗 Conexiones y Edges
+## Conexiones y Edges
 
 ### Operadores de Conexión
 
@@ -226,7 +226,7 @@ node1 >> Edge(
 
 ---
 
-## 📦 Clusters (Agrupaciones)
+## Clusters (Agrupaciones)
 
 ### Uso Básico
 
@@ -276,7 +276,7 @@ with Cluster(
 
 ---
 
-## ✅ Mejores Prácticas
+## Mejores Prácticas
 
 ### 1. Estructura del Archivo
 
@@ -301,7 +301,7 @@ graph_attr = {
 with Diagram(...):
     # ... diagrama ...
 
-print("✅ Diagrama generado: output/nombre_diagrama.png")
+print("Diagrama generado: output/nombre_diagrama.png")
 ```
 
 ### 2. Organización de Carpetas
@@ -360,7 +360,7 @@ En LaTeX:
 
 ---
 
-## 🚀 Ejemplos de Patrones Comunes
+## Ejemplos de Patrones Comunes
 
 ### Blue-Green Deployment
 
@@ -403,7 +403,7 @@ gateway >> [svc1, svc2, svc3]
 
 ---
 
-## 📝 Checklist de Revisión
+## Checklist de Revisión
 
 Antes de finalizar un diagrama, verificar:
 
@@ -418,7 +418,7 @@ Antes de finalizar un diagrama, verificar:
 
 ---
 
-## 🔗 Referencias
+## Referencias
 
 - [Diagrams Documentation](https://diagrams.mingrammer.com/)
 - [Graphviz Attributes](https://graphviz.org/doc/info/attrs.html)
