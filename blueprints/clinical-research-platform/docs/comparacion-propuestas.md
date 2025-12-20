@@ -1,116 +1,25 @@
-# Clinical Research Platform
+# Comparacion de Propuestas
 
-Propuesta de Arquitectura
-
----
-
-## Arquitectura General
-
-Vista completa de la plataforma con todos los componentes.
-
-![Arquitectura Completa](../src/01-complete-architecture/output.png)
-
-Flujo:
-1. Participantes acceden via Mobile App (React Native)
-2. Investigadores acceden via WebApp (React + Amplify)
-3. Route 53 resuelve DNS
-4. CloudFront distribuye contenido estatico
-5. ALB balancea trafico al backend
-6. Backend procesa requests
-7. Datos en RDS PostgreSQL y S3
-8. Cognito maneja autenticacion
-9. SNS/SES envian notificaciones
+Clinical Research Platform - Dos opciones con Fargate
 
 ---
 
-## Mobile App (Participantes)
-
-Aplicacion movil React Native para iOS y Android.
-
-![Mobile App](../src/02-mobile-app/output.png)
-
-Funcionalidades:
-- Login seguro con opcion biometrica
-- Dashboard de estado del estudio
-- Calendario de visitas con confirmacion
-- Consentimiento informado digital con firma
-- Encuestas y formularios de seguimiento
-- Chat seguro con investigadores
-- Notificaciones push de recordatorios
+| Aspecto | Propuesta A (Basica) | Propuesta B (+ Seguridad) |
+|---------|----------------------|---------------------------|
+| Costo mensual | $200-350 USD | $400-600 USD |
+| Base de datos | RDS Single-AZ | RDS Multi-AZ |
+| Cache | No | Redis |
+| WAF | No | Si |
+| Audit Trail | No | CloudTrail |
+| Secrets Manager | No | Si |
 
 ---
 
-## WebApp (Investigadores)
+## Propuesta A - Fargate Basico
 
-Panel de administracion web para el equipo de investigacion.
+Arquitectura minima funcional. Economica y escalable.
 
-![WebApp](../src/03-webapp/output.png)
-
-Funcionalidades:
-- Dashboard con KPIs (estudios activos, pacientes, visitas)
-- Gestion de protocolos y CRFs
-- Enrolamiento y seguimiento de participantes
-- Cronograma de visitas con colores
-- Recoleccion de datos con validaciones
-- Registro de eventos adversos
-- Reportes exportables (CSV/Excel)
-- Auditoria completa de acciones
-
----
-
-## Backend Infrastructure
-
-Infraestructura en AWS cumpliendo lineamientos HIPAA.
-
-![Backend Infrastructure](../src/04-backend-infrastructure/output.png)
-
-Componentes:
-- VPC con subnets publicas y privadas
-- Contenedores para el backend
-- RDS PostgreSQL para datos
-- ElastiCache Redis para cache
-- S3 encriptado para documentos
-- CloudWatch para monitoreo
-
----
-
-## Capas de Seguridad
-
-Stack de seguridad en capas para cumplimiento HIPAA.
-
-![Security Layers](../src/05-security-layers/output.png)
-
-| Capa | Componentes | Funcion |
-|------|-------------|---------|
-| 1. Edge | Shield, WAF, CloudFront | Proteccion DDoS y filtrado |
-| 2. Auth | Cognito, IAM, RBAC | Autenticacion y autorizacion |
-| 3. Network | VPC, Security Groups | Aislamiento de red |
-| 4. Application | Validation, Sessions | Seguridad en codigo |
-| 5. Data | KMS, Encryption | Proteccion de datos |
-| 6. Audit | CloudTrail, Logs | Trazabilidad completa |
-
----
-
-## Propuestas de Implementacion
-
-Ambas propuestas incluyen seguridad completa. La diferencia es quien administra los servidores.
-
-| Aspecto | Propuesta A (Fargate) | Propuesta B (EC2) |
-|---------|----------------------|-------------------|
-| Costo mensual | $350-500 USD | $300-450 USD |
-| Compute | Fargate (serverless) | EC2 (autoadministrado) |
-| Administracion | AWS | Ustedes |
-| Base de datos | RDS Single-AZ | RDS Single-AZ |
-| Cache | Redis | Redis |
-| WAF | Si | Si |
-| Audit Trail | CloudTrail | CloudTrail |
-| Secrets Manager | Si | Si |
-
----
-
-## Propuesta A - Fargate (Serverless)
-
-AWS administra los servidores. Solo suben contenedores y escala automaticamente.
+### Diagrama
 
 ![Propuesta A](../src/06-propuesta-simple/output.png)
 
@@ -118,13 +27,63 @@ AWS administra los servidores. Solo suben contenedores y escala automaticamente.
 
 | Servicio | Configuracion |
 |----------|---------------|
-| Fargate | 2 tareas (0.5 vCPU, 1GB) |
-| RDS PostgreSQL | db.t3.small Single-AZ |
-| ElastiCache | cache.t3.micro Redis |
-| WAF | Reglas basicas |
-| Amplify | WebApp React |
+| Fargate | 2 tareas (0.25 vCPU, 0.5GB) |
+| RDS PostgreSQL | db.t3.micro Single-AZ |
 | S3 | Standard |
-| CloudFront | Con WAF |
+| CloudFront | Basico |
+| Cognito | User Pool |
+| SNS/SES | Pay-per-use |
+
+### Costo Estimado
+
+| Servicio | USD/mes |
+|----------|---------|
+| Fargate | $30-50 |
+| RDS db.t3.micro | $15-25 |
+| ALB | $20-30 |
+| S3 + CloudFront | $10-20 |
+| Route 53 | $5 |
+| Cognito (500 users) | $0-25 |
+| SNS/SES | $5-15 |
+| CloudWatch | $10-20 |
+| **Total** | **$200-350** |
+
+### Ventajas
+- Muy economico
+- Simple de mantener
+- Suficiente para estudios pequenos
+- Escala si se necesita
+
+### Desventajas
+- Sin alta disponibilidad (Single-AZ)
+- Sin WAF (menor proteccion)
+- Sin cache (mas carga en DB)
+- Recovery manual si falla
+
+### Ideal para
+- MVP o piloto
+- Estudios con < 100 participantes
+- Presupuesto limitado
+
+---
+
+## Propuesta B - Fargate + Seguridad
+
+Arquitectura robusta con alta disponibilidad y seguridad.
+
+### Diagrama
+
+![Propuesta B](../src/07-propuesta-estandar/output.png)
+
+### Componentes
+
+| Servicio | Configuracion |
+|----------|---------------|
+| Fargate | 2 tareas (0.5 vCPU, 1GB) con auto-scaling |
+| RDS PostgreSQL | db.t3.small Multi-AZ |
+| ElastiCache | cache.t3.micro |
+| S3 | Standard |
+| CloudFront + WAF | Con proteccion |
 | Cognito | User Pool + 2FA |
 | Secrets Manager | Credenciales |
 | CloudTrail | Auditoria |
@@ -134,109 +93,81 @@ AWS administra los servidores. Solo suben contenedores y escala automaticamente.
 | Servicio | USD/mes |
 |----------|---------|
 | Fargate | $50-80 |
-| RDS db.t3.small | $25-40 |
+| RDS db.t3.small Multi-AZ | $50-70 |
 | ElastiCache | $15-25 |
 | ALB | $20-30 |
-| WAF | $10-20 |
-| Amplify | $0-10 |
 | S3 + CloudFront | $15-25 |
+| WAF | $10-20 |
 | Route 53 | $5 |
-| Cognito | $0-50 |
+| Cognito (1000 users) | $0-50 |
 | Secrets Manager | $5 |
 | SNS/SES | $10-20 |
 | CloudWatch + CloudTrail | $20-35 |
-| **Total** | **$350-500** |
+| **Total** | **$400-600** |
 
 ### Ventajas
-- Sin administracion de servidores
-- AWS parcha el OS automaticamente
-- Escala automaticamente segun demanda
-- Pay-per-use
-- Seguridad completa (WAF, CloudTrail, Secrets)
+- Alta disponibilidad (Multi-AZ)
+- Failover automatico de DB
+- WAF protege contra ataques
+- Cache reduce carga en DB
+- Audit trail para HIPAA
+- Secrets seguros
 
 ### Desventajas
-- Menos control sobre infraestructura
-- No hay SSH a contenedores
-- Costo ligeramente mayor
+- Mayor costo
+- Mas componentes
+
+### Ideal para
+- Produccion
+- Estudios con > 100 participantes
+- Requerimiento de compliance HIPAA
 
 ---
 
-## Propuesta B - EC2 (Autoadministrado)
+## Comparativa de Costos
 
-Ustedes administran los servidores. Control total con SSH.
-
-![Propuesta B](../src/07-propuesta-estandar/output.png)
-
-### Componentes
-
-| Servicio | Configuracion |
-|----------|---------------|
-| EC2 | 2x t3.small (API + Worker) |
-| RDS PostgreSQL | db.t3.small Single-AZ |
-| ElastiCache | cache.t3.micro Redis |
-| WAF | Reglas basicas |
-| Amplify | WebApp React |
-| S3 | Standard |
-| CloudFront | Con WAF |
-| Cognito | User Pool + 2FA |
-| Secrets Manager | Credenciales |
-| CloudTrail | Auditoria |
-
-### Costo Estimado
-
-| Servicio | USD/mes |
-|----------|---------|
-| EC2 (2x t3.small) | $30-40 |
-| RDS db.t3.small | $25-40 |
-| ElastiCache | $15-25 |
-| ALB | $20-30 |
-| WAF | $10-20 |
-| Amplify | $0-10 |
-| S3 + CloudFront | $15-25 |
-| Route 53 | $5 |
-| Cognito | $0-50 |
-| Secrets Manager | $5 |
-| SNS/SES | $10-20 |
-| CloudWatch + CloudTrail | $20-35 |
-| **Total** | **$300-450** |
-
-### Ventajas
-- Control total (SSH, logs, configuracion)
-- Costo ligeramente menor
-- Pueden optimizar instancias
-- Seguridad completa (WAF, CloudTrail, Secrets)
-
-### Desventajas
-- Ustedes parchean el OS
-- Ustedes escalan manualmente
-- Pagan 24/7 aunque no haya trafico
+| Escenario | Propuesta A | Propuesta B |
+|-----------|-------------|-------------|
+| Minimo | $200/mes | $400/mes |
+| Tipico | $275/mes | $500/mes |
+| Pico | $350/mes | $600/mes |
+| **Anual tipico** | **$3,300** | **$6,000** |
 
 ---
 
-## Comparativa Final
+## Escalabilidad
 
-| | Propuesta A (Fargate) | Propuesta B (EC2) |
-|-|----------------------|-------------------|
-| Quien administra | AWS | Ustedes |
-| Parches de OS | Automatico | Manual |
-| SSH a servidor | No | Si |
-| Escalamiento | Automatico | Manual |
-| Costo minimo | $350/mes | $300/mes |
-| Costo tipico | $425/mes | $375/mes |
-| **Anual estimado** | **$5,100** | **$4,500** |
+Ambas propuestas usan Fargate que escala automaticamente:
+
+| Usuarios concurrentes | Fargate tasks | Costo adicional |
+|----------------------|---------------|-----------------|
+| 1-50 | 2 | Base |
+| 50-200 | 4 | +$30-50/mes |
+| 200-500 | 6-8 | +$60-100/mes |
+| 500+ | Auto-scale | Variable |
 
 ---
 
 ## Recomendacion
 
-**Propuesta A (Fargate)** si:
-- Equipo pequeno sin DevOps dedicado
-- Prefieren que AWS administre infraestructura
-- Quieren escalamiento automatico
-- No necesitan SSH a servidores
+**Para empezar: Propuesta A**
+- Iniciar con lo basico
+- Validar que funciona
+- Bajo riesgo financiero
 
-**Propuesta B (EC2)** si:
-- Quieren control total sobre servidores
-- Tienen experiencia administrando infraestructura
-- Prefieren menor costo mensual
-- Necesitan SSH para debugging
+**Migrar a Propuesta B cuando:**
+- El estudio tenga > 50 participantes activos
+- Se requiera compliance formal HIPAA
+- Se detecten ataques o necesidad de WAF
+
+La migracion de A a B toma ~1 semana y no requiere downtime significativo.
+
+---
+
+## Que NO incluyen estas propuestas
+
+Costos adicionales a considerar:
+- Dominio (~$12/año)
+- Certificado SSL (gratis con ACM)
+- SMS via SNS ($0.00645/mensaje)
+- Transferencia de datos (primeros 100GB gratis)
